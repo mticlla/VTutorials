@@ -2,3 +2,4 @@
 ^renv\.lock$
 ^VTutorials\.Rproj$
 ^\.Rproj\.user$
+^LICENSE\.md$
