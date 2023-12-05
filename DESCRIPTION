@@ -11,6 +11,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Depends: 
     tidyverse,
-    tidytacos
+    tidytacos,
+    R (>= 2.10)
 Remotes:
     github::LebeerLab/tidytacos
+LazyData: true
