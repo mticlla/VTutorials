@@ -1,0 +1,191 @@
+---
+title: "Introducción al Análisis de la Microbiota Vaginal con Tidytacos"
+author: "Monica R. Ticlla"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytacos)
+set.seed(100)
+```
+
+Esta guía explica cómo realizar algunas tareas comunes de análisis de datos de 
+recuento de secuenciación microbiana utilizando tidytacos. Ilustraremos utilizando 
+un conjunto de datos con muestras de microbioma humano del tracto vaginal, 
+tomadas de este [artículo](https://doi.org/10.1038/s41564-023-01500-0) por Lebeer et al.
+
+## Tidytacos: la filosofía del paquete
+
+Un objeto tidytacos es simplemente una lista de tres tablas:
+
+- counts: estos son los recuentos de lecturas para cada taxón (OTU/ASV/filotipo) en cada muestra. Cada fila representa dicho recuento de lecturas.
+
+- samples: esta tabla contiene los metadatos de muestra. Cada fila representa una muestra.
+
+- taxa: esta tabla contiene la taxonomía y otros metadatos de los taxones. Cada fila representa un taxón.
+
+El paquete se llama tidytacos porque cada una de las tablas está ordenada (en inglés tidy): cada fila representa una observación y cada columna una variable (puedes encontrar más información sobre la ordenación de datos en este [enlace](https://r4ds.hadley.nz/data-tidy.html#sec-tidy-data)).
+
+## Configuración
+
+En caso de que aún no hayas instalado tidytacos, puedes instalarlo usando devtools:
+
+``` r
+install.packages("devtools")
+devtools::install_github("LebeerLab/tidytacos")
+```
+Para esta guía, sólo necesitamos cargar tres paquetes: tidytacos (por supuesto), el conjunto de paquetes tidyverse, y VTutorials.
+
+```{r}
+library(tidyverse)
+library(tidytacos)
+library(VTutorials)
+```
+
+## Exploremos vdata
+
+Nuestro conjunto de datos de ejemplo está disponible en el paquete VTutorials y 
+no es necesario importarlo ni convertirlo. Se llama “vdata” y comenzamos inspeccionando 
+la tabla de muestras:
+
+```{r}
+glimpse(vdata$samples)
+```
+
+Luego echamos un vistazo rápido al número total de muestras, ASV y lecturas (reads en inglés) 
+en el objeto tidytacos:
+
+```{r}
+tacosum(vdata)
+```
+
+## Hagamos un diagrama de barras apilado de un subconjunto de muestras
+
+Podemos crear muy fácilmente un gráfico para explorar un subconjunto de nuestras muestras (por ejemplo, solo muestras de participantes que han tomado antibióticos en los últimos 3 meses y son menores de 40 años) de la siguiente manera:
+
+```{r}
+vdata %>%
+  filter_samples(Health.Antibiotic.3months == TRUE, General.Age <= 40) %>%
+  tacoplot_stack()
+```
+La función filter_samples hace lo que dice: filtrar muestras. También eliminará los taxones de la tabla de taxones que tengan cero lecturas totales en las muestras restantes. La función tacoplot_stack devuelve una buena visualización de diagramas de barras apiladas de los taxones más abundantes en nuestras muestras.
+
+¿Se te ocurren otras ideas de como filtrar y rápidamente visualizar vdata?
+
+## Subconjunto de datos
+
+Nuestra siguiente pregunta para este conjunto de datos es hasta qué punto la 
+actividad sexual dentro de las 24 horas antes de tomada las muestras afecta 
+la composición microbiana de las participantes en edad reproductiva (asumamos 
+<=40 años). Para hacernos una idea primero lo podemos visualizar:
+
+```{r}
+vdata_less40 <- vdata %>% filter_samples(General.Age <= 40)
+tacoplot_stack(vdata_less40)+
+  geom_point(aes(y=-0.02,color=Sexual.Intercourse.24hours))
+```
+## Diversidad Alpha
+Para explorar la diversidad alfa, creemos una versión enrarecida (rarefied en inglés) 
+del conjunto de datos:
+
+```{r}
+vdata_rar <- vdata %>%
+  add_total_count() %>%
+  filter_samples(total_count >= 2000) %>%
+  rarefy(2000) %>%
+  add_alpha()
+```
+
+La función add_total_count agregará números totales de lectura de muestra a la tabla de muestra.
+
+La función rarefy submuestreará aleatoriamente todas las muestras n veces. Solo 
+funciona si el recuento de lecturas de cada muestra es igual o superior a n. 
+
+Para determinar la riqueza de ASV, optamos por enrarecer primero, pero esto puede depender de sus datos.
+
+La función add_alpha se puede utilizar para agregar varias métricas de diversidad alfa a la tabla de muestra.
+
+Podemos visualizar la diversidad alpha de muestras de participantes que realizaron 
+actividad sexual dentro de las 24 horas antes de tomada las muestras versus las que no:
+
+```{r}
+vdata_rar %>%
+  samples() %>%
+  ggplot(aes(x = Sexual.Intercourse.24hours, y = observed, fill = Sexual.Intercourse.24hours)) +
+  geom_boxplot(outlier.shape = NA)+
+  geom_jitter(height = NULL)
+```
+
+## Análisis de coordenadas principales (PCoA)
+
+Nos gustaría abordar las diferencias entre muestras de participantes que realizaron 
+actividad sexual dentro de las 24 horas antes de tomada las muestras versus las 
+que no. También estamos más interesados en los géneros que en los ASV. 
+
+Una PCoA podría ofrecer información:
+
+```{r}
+vdata_genus <- vdata %>%
+  aggregate_taxa(rank = "genus")
+
+tacoplot_ord_ly(vdata_genus, Sexual.Intercourse.24hours, samplenames = sample, 
+                dim = 3)
+```
+La función aggregate_taxa fusiona todas las filas de la tabla de taxones en un 
+nivel taxonómico específico, en este caso el nivel de género. Como ocurre con 
+todas las funciones de tidytacos, todas las demás tablas del objeto tidytacos 
+se ajustan en consecuencia.
+
+La función tacoplot_ord_ly determinará la abundancia relativa de taxones en las 
+muestras y luego utilizará las diferencias de Bray-Curtis para ordenar muestras 
+en un espacio bidimensional (o tridimensional) según su composición taxonómica. 
+La adición argumental de plotly "_ly" hace que la figura sea interactiva, lo cual 
+es realmente bueno para el trabajo exploratorio. Esto también funciona para otras 
+funciones de visualización.
+
+## Relación entre la composición de la comunidad microbiana y variables.
+
+La siguiente pregunta lógica es hasta qué punto la actividad sexual reciente 
+(dentro de las 24 horas) determina la variabilidad de la composición de la 
+comunidad microbiana. No olvidemos que la composición microbiana vaginal varia 
+con la edad, por eso incluyamos edad en el modelo.
+
+```{r}
+perform_adonis(vdata_genus, c("General.Age", "Sexual.Intercourse.24hours"))
+```
+La función `perform_adonis` realizará un ANOVA PERMutacional para determinar el 
+efecto de las variables de muestra en las diferencias de Bray-Curtis de las 
+comunidades. El resultado muestra que la edad es un contribuyente a la composición 
+de la comunidad microbiana (R cuadrado = 0.02676).
+
+## Análisis de abundancia diferencial
+
+A continuación, nos gustaría saber cuáles de los 20 géneros más abundantes son 
+significativamente más abundantes en las participantes que realizaron 
+actividad sexual dentro de las 24 horas antes de tomada las muestras versus las 
+que no.
+
+```{r}
+vdata_genus <- vdata_genus %>% add_codifab(Sexual.Intercourse.24hours, 
+                                           max_taxa = 20)
+vdata_genus$taxon_pairs <- filter(vdata_genus$taxon_pairs, wilcox_p < 0.05)
+tacoplot_codifab(vdata_genus, FALSE_vs_TRUE)
+```
+La función `add_codifab` agregará una tabla llamada taxon_pairs al objeto tidytacos, 
+con la abundancia diferencial del taxón entre las dos condiciones (con respecto 
+al taxón de referencia), para cada par de un taxón y un taxón de referencia.
+
+La función `tacoplot_codifab` devuelve un gráfico para visualizar la abundancia diferencial 
+de taxones entre condiciones, en comparación con todos los demás taxones como referencia. 
+Podemos observar que es más probable que Staphiloccus y L. iners group sea típico 
+encontrar cuando una participante ha tenido actividad sexual dentro de las 24 horas 
+antes de tomada las muestras.
+
+Es de destacar que existen muchos métodos de análisis de abundancia diferencial y 
+ninguno de ellos es perfecto. Interprete tus resultados con cuidado.
+
+---
+Descargo de responsabilidad: Esta guía es una adaptación de la versión en inglés del [tutorial de tidytacos](https://github.com/LebeerLab/tidytacos/wiki/Tutorials#tidytacos-quick-start-guide).
