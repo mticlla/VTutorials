@@ -18,9 +18,9 @@ install.packages("devtools")
 devtools::install_github("LebeerLab/tidytacos")
 ```
 
-## Installation
+## Instalación
 
-You can install the development version of VTutorials from
+Puede instalar la versión en desarrollo de VTutorials desde
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -28,10 +28,6 @@ You can install the development version of VTutorials from
 devtools::install_github("mticlla/VTutorials")
 ```
 
-## Example
+## Tutoriales
 
-This is a basic example which shows you how to solve a common problem:
-
-    #```{r example}
-    library(VTutorials)
-    ## basic example code
+- [Introduccción a tidytacos](introduccion_tidytacos.Rmd)
