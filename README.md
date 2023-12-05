@@ -9,6 +9,15 @@
 El objetivo de VTutorials es proveer una series de tutoriales para el
 análisis de datos derivados del estudio de la microbiota vaginal.
 
+## Dependencias
+
+``` r
+install.packages("tidyverse")
+
+install.packages("devtools")
+devtools::install_github("LebeerLab/tidytacos")
+```
+
 ## Installation
 
 You can install the development version of VTutorials from
