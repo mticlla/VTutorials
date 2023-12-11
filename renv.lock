@@ -188,10 +188,10 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "3.6.1",
+      "Version": "3.6.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "89e6d8219950eac806ae0c489052048a",
+      "Hash": "1216ac65ac55ec0058a6f75d7ca0fd52",
       "Requirements": []
     },
     "clipr": {
@@ -392,10 +392,10 @@
     },
     "fansi": {
       "Package": "fansi",
-      "Version": "1.0.5",
+      "Version": "1.0.6",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "3e8583a60163b4bc1a80016e63b9959e",
+      "Hash": "962174cf2aeb5b9eea581522286a911f",
       "Requirements": []
     },
     "farver": {
@@ -989,10 +989,10 @@
     },
     "progress": {
       "Package": "progress",
-      "Version": "1.2.2",
+      "Version": "1.2.3",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "14dc9f7a3c91ebb14ec5bb9208a07061",
+      "Hash": "f4625e061cb2865f111b47ff163a5ca6",
       "Requirements": [
         "R6",
         "crayon",
@@ -1348,15 +1348,15 @@
     },
     "tidytacos": {
       "Package": "tidytacos",
-      "Version": "0.3.0",
+      "Version": "1.0.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "tidytacos",
       "RemoteUsername": "LebeerLab",
       "RemoteRef": "HEAD",
-      "RemoteSha": "28d57a9295f9e56a416203058622a4323638c13b",
-      "Hash": "5c15598f7b07d7ac596ccd5a4996c953",
+      "RemoteSha": "e11304abb0cf2544b75aef833bc1c0105f1f4af1",
+      "Hash": "9dea617bc78cc5c0bce38f9115d876d3",
       "Requirements": [
         "dplyr",
         "forcats",
@@ -1521,10 +1521,10 @@
     },
     "vroom": {
       "Package": "vroom",
-      "Version": "1.6.4",
+      "Version": "1.6.5",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "9db52c1656cf19c124f93124ea57f0fd",
+      "Hash": "390f9315bc0025be03012054103d227c",
       "Requirements": [
         "bit64",
         "cli",
