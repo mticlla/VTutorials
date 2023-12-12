@@ -10,7 +10,9 @@ El objetivo de VTutorials es proveer una series de tutoriales para el
 análisis de datos derivados del estudio de la microbiota vaginal.
 
 ## Dependencias
-
+- R (instaladores en este [enlace](https://cran.r-project.org/))
+- [RStudio](https://posit.co/download/rstudio-desktop/)
+- Los paquetes tidyverse y tidytacos:
 ``` r
 install.packages("tidyverse")
 
@@ -29,5 +31,5 @@ devtools::install_github("mticlla/VTutorials")
 ```
 
 ## Tutoriales
-
+Descargar los tutoriales y abrirlos en RStudio
 - [Introduccción a tidytacos](introduccion_tidytacos.Rmd)
